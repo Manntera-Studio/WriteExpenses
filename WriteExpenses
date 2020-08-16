@@ -1,0 +1,78 @@
+var SpreadsheetID='【スプレッドシートのID】';
+
+// 支出情報を記録したJsonデータを受け取り、スプレッドシートに情報を記入し、Twitterに情報を投稿します。
+function doPost(e)
+{
+  //受け取ったテキストデータをJson形式に変換
+  var data = JSON.parse(e.postData.getDataAsString());
+  //Sample Data
+  //var data = {category:'飯',product: 'ごはん',price:200};
+  
+  //出費を行った年と月を取得
+  var yyyymm = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'YYYY/MM');
+  
+  // 目的のスプレッドシートを取得
+  var spreadsheet = SpreadsheetApp.openById(SpreadsheetID);
+  // 目的のシートを取得
+  var sheet = GetSheet(spreadsheet,yyyymm)
+
+  // 支出情報を書き込む
+  WriteData(sheet,data);
+  // Twitterに支出情報を投稿する
+  PostTweet('【 #ちびてらちゃんのつぶやき 】\n' + 'ご主人様が' + data.product + 'に' + String(data.price)+'円を使ったみたいだよ！\n\n#まんてら節約しろ\n#まんてらスタジオ');
+}
+
+// 指定されたシートを返します。指定されたシートが存在しない場合はTemplateシートをコピーしてそれを返します。
+function GetSheet(spreadsheet, name)
+{
+  // シートを取得
+  var sheet = spreadsheet.getSheetByName(name);
+  
+  // もしシートが無い場合は？
+  if(sheet === null)
+  {
+    // テンプレートシートを取得して、コピーを作成する
+    templateSheet = spreadsheet.getSheetByName('Template');
+    spreadsheet.setActiveSheet(templateSheet);
+    spreadsheet.duplicateActiveSheet();
+    sheet = spreadsheet.getActiveSheet();
+    sheet.setName(name);
+  }
+  return sheet;
+}
+
+// 支出データをスプレッドシートに書き込みます。
+function WriteData(sheet, jsonData)
+{
+  // 現在の日にちを取得
+  var dd = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'dd');
+  // 現在の時間を取得
+  var hhmmss = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'HH:mm:ss');
+  
+  //書き込むべき行を取得
+  var writeRow = GetFirstBrankDataRowNum(sheet, 1);
+  
+  // スプレッドシートに支出データを記入
+  sheet.getRange(writeRow, 1).setValue(writeRow - 1);
+  sheet.getRange(writeRow, 2).setValue(dd);
+  sheet.getRange(writeRow, 3).setValue(hhmmss);
+  sheet.getRange(writeRow, 4).setValue(jsonData.category);
+  sheet.getRange(writeRow, 5).setValue(jsonData.product);
+  sheet.getRange(writeRow, 6).setValue(jsonData.price);
+}
+
+// 指定した列に対して一番最初の空白セルを探索して、その行数を返します。
+function GetFirstBrankDataRowNum(sheet,Column)
+{
+  var targetRow = 0;
+
+  while(true)
+  {
+    targetRow++;
+    var rangeCell = sheet.getRange(targetRow,Column);
+    if(rangeCell.isBlank())
+    {
+      return targetRow;
+    }
+  }
+}
