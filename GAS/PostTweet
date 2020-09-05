@@ -1,5 +1,5 @@
 // ツイートを投稿
-function PostTweet(tweetWord){
+function postTweet(tweetWord){
   var service  = twitter.getService();
   var endPointUrl = 'https://api.twitter.com/1.1/statuses/update.json';
   var response = service.fetch(endPointUrl, {method: 'post',payload: {status: tweetWord}});
