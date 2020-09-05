@@ -5,12 +5,12 @@ var twitter = TwitterWebService.getInstance(
 );
 
 //アプリを連携認証する
-function Authorize() {
+function authorize() {
   twitter.authorize();
 }
 
 //認証を解除する
-function Reset() {
+function reset() {
   twitter.reset();
 }
 
