@@ -14,16 +14,16 @@ function doPost(e)
   // 目的のスプレッドシートを取得
   var spreadsheet = SpreadsheetApp.openById(SpreadsheetID);
   // 目的のシートを取得
-  var sheet = GetSheet(spreadsheet,yyyymm);
+  var sheet = getSheet(spreadsheet,yyyymm);
 
   // 支出情報を書き込む
-  WriteData(sheet,data);
+  writeData(sheet,data);
   // Twitterに支出情報を投稿する
   PostTweet('【 #ちびてらちゃんのつぶやき 】\n' + 'ご主人様が' + data.product + 'に' + String(data.price)+'円を使ったみたいだよ！\n\n#まんてら節約しろ\n#まんてらスタジオ');
 }
 
 // 指定されたシートを返します。指定されたシートが存在しない場合はTemplateシートをコピーしてそれを返します。
-function GetSheet(spreadsheet, name)
+function getSheet(spreadsheet, name)
 {
   // シートを取得
   var sheet = spreadsheet.getSheetByName(name);
@@ -42,7 +42,7 @@ function GetSheet(spreadsheet, name)
 }
 
 // 支出データをスプレッドシートに書き込みます。
-function WriteData(sheet, jsonData)
+function writeData(sheet, jsonData)
 {
   // 現在の日にちを取得
   var dd = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'dd');
@@ -50,7 +50,7 @@ function WriteData(sheet, jsonData)
   var hhmmss = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'HH:mm:ss');
   
   //書き込むべき行を取得
-  var writeRow = GetFirstBrankDataRowNum(sheet, 1);
+  var writeRow = getFirstBrankDataRowNum(sheet, 1);
   
   // スプレッドシートに支出データを記入
   sheet.getRange(writeRow, 1).setValue(writeRow - 1);
@@ -62,7 +62,7 @@ function WriteData(sheet, jsonData)
 }
 
 // 指定した列に対して一番最初の空白セルを探索して、その行数を返します。
-function GetFirstBrankDataRowNum(sheet,Column)
+function getFirstBrankDataRowNum(sheet,Column)
 {
   var targetRow = 0;
 
